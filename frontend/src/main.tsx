@@ -1,13 +1,15 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App'
 import './index.css'
-import App from './App.tsx'
-import { LikedArticlesProvider } from './contexts/LikedArticlesContext'
+import { LikedReposProvider } from './contexts/LikedReposContext'
+import { Analytics } from '@vercel/analytics/react'
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <LikedArticlesProvider>
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <LikedReposProvider>
       <App />
-    </LikedArticlesProvider>
-  </StrictMode>,
+      <Analytics />
+    </LikedReposProvider>
+  </React.StrictMode>,
 )

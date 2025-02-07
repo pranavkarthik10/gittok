@@ -1,16 +1,15 @@
 import { useEffect, useRef, useCallback, useState } from 'react'
-import { WikiCard } from './components/WikiCard'
+import { GitHubCard } from './components/GitHubCard'
 import { Loader2, Search, X, Download } from 'lucide-react'
 import { Analytics } from "@vercel/analytics/react"
-import { LanguageSelector } from './components/LanguageSelector'
-import { useLikedArticles } from './contexts/LikedArticlesContext'
-import { useWikiArticles } from './hooks/useWikiArticles'
+import { useLikedRepos } from './contexts/LikedReposContext'
+import { useGithubRepos } from './hooks/useGithubRepos'
 
 function App() {
   const [showAbout, setShowAbout] = useState(false)
   const [showLikes, setShowLikes] = useState(false)
-  const { articles, loading, fetchArticles } = useWikiArticles()
-  const { likedArticles, toggleLike } = useLikedArticles()
+  const { repos, loading, fetchRepos } = useGithubRepos()
+  const { likedRepos, toggleLike } = useLikedRepos()
   const observerTarget = useRef(null)
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -18,10 +17,10 @@ function App() {
     (entries: IntersectionObserverEntry[]) => {
       const [target] = entries
       if (target.isIntersecting && !loading) {
-        fetchArticles()
+        fetchRepos()
       }
     },
-    [loading, fetchArticles]
+    [loading, fetchRepos]
   )
 
   useEffect(() => {
@@ -38,32 +37,24 @@ function App() {
   }, [handleObserver])
 
   useEffect(() => {
-    fetchArticles()
+    fetchRepos()
   }, [])
 
-  const filteredLikedArticles = likedArticles.filter(article =>
-    article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    article.extract.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredLikedRepos = likedRepos.filter(repo =>
+    repo.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    repo.description?.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
   const handleExport = () => {
-    const simplifiedArticles = likedArticles.map(article => ({
-      title: article.title,
-      url: article.url,
-      extract: article.extract,
-      thumbnail: article.thumbnail?.source || null
-    }));
+    const dataStr = JSON.stringify(likedRepos, null, 2)
+    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr)
+    const exportFileDefaultName = `gittok-favorites-${new Date().toISOString().split('T')[0]}.json`
 
-    const dataStr = JSON.stringify(simplifiedArticles, null, 2);
-    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-
-    const exportFileDefaultName = `wikitok-favorites-${new Date().toISOString().split('T')[0]}.json`;
-
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportFileDefaultName);
-    linkElement.click();
-  };
+    const linkElement = document.createElement('a')
+    linkElement.setAttribute('href', dataUri)
+    linkElement.setAttribute('download', exportFileDefaultName)
+    linkElement.click()
+  }
 
   return (
     <div className="h-screen w-full bg-black text-white overflow-y-scroll snap-y snap-mandatory">
@@ -72,7 +63,7 @@ function App() {
           onClick={() => window.location.reload()}
           className="text-2xl font-bold text-white drop-shadow-lg hover:opacity-80 transition-opacity"
         >
-          WikiTok
+          GitTok
         </button>
       </div>
 
@@ -89,7 +80,6 @@ function App() {
         >
           Likes
         </button>
-        <LanguageSelector />
       </div>
 
       {showAbout && (
@@ -101,25 +91,14 @@ function App() {
             >
               ✕
             </button>
-            <h2 className="text-xl font-bold mb-4">About WikiTok</h2>
+            <h2 className="text-xl font-bold mb-4">About GitTok</h2>
             <p className="mb-4">
-              A TikTok-style interface for exploring random Wikipedia articles.
+              A TikTok-style interface for exploring random GitHub repositories.
             </p>
             <p className="text-white/70">
-              Made with ❤️ by{' '}
-              <a
-                href="https://x.com/Aizkmusic"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white hover:underline"
-              >
-                @Aizkmusic
-              </a>
-            </p>
-            <p className="text-white/70 mt-2">
               Check out the code on{' '}
               <a
-                href="https://github.com/IsaacGemal/wikitok"
+                href="https://github.com/yourusername/gittok"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-white hover:underline"
@@ -142,12 +121,12 @@ function App() {
             </button>
 
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold">Liked Articles</h2>
-              {likedArticles.length > 0 && (
+              <h2 className="text-xl font-bold">Liked Repositories</h2>
+              {likedRepos.length > 0 && (
                 <button
                   onClick={handleExport}
                   className="flex items-center gap-2 px-3 py-1.5 text-sm bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
-                  title="Export liked articles"
+                  title="Export liked repositories"
                 >
                   <Download className="w-4 h-4" />
                   Export
@@ -160,40 +139,33 @@ function App() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search liked articles..."
+                placeholder="Search liked repositories..."
                 className="w-full bg-gray-800 text-white px-4 py-2 pl-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <Search className="w-5 h-5 text-white/50 absolute left-3 top-1/2 transform -translate-y-1/2" />
             </div>
 
             <div className="flex-1 overflow-y-auto min-h-0">
-              {filteredLikedArticles.length === 0 ? (
+              {filteredLikedRepos.length === 0 ? (
                 <p className="text-white/70">
-                  {searchQuery ? "No matches found." : "No liked articles yet."}
+                  {searchQuery ? "No matches found." : "No liked repositories yet."}
                 </p>
               ) : (
                 <div className="space-y-4">
-                  {filteredLikedArticles.map((article) => (
-                    <div key={`${article.pageid}-${Date.now()}`} className="flex gap-4 items-start group">
-                      {article.thumbnail && (
-                        <img
-                          src={article.thumbnail.source}
-                          alt={article.title}
-                          className="w-20 h-20 object-cover rounded"
-                        />
-                      )}
+                  {filteredLikedRepos.map((repo) => (
+                    <div key={repo.id} className="flex gap-4 items-start group">
                       <div className="flex-1">
                         <div className="flex justify-between items-start">
                           <a
-                            href={article.url}
+                            href={repo.html_url}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="font-bold hover:text-gray-200"
                           >
-                            {article.title}
+                            {repo.name}
                           </a>
                           <button
-                            onClick={() => toggleLike(article)}
+                            onClick={() => toggleLike(repo)}
                             className="text-white/50 hover:text-white/90 p-1 rounded-full md:opacity-0 md:group-hover:opacity-100 transition-opacity"
                             aria-label="Remove from likes"
                           >
@@ -201,8 +173,12 @@ function App() {
                           </button>
                         </div>
                         <p className="text-sm text-white/70 line-clamp-2">
-                          {article.extract}
+                          {repo.description}
                         </p>
+                        <div className="mt-2 flex items-center gap-4 text-sm text-white/50">
+                          <span>★ {repo.stargazers_count.toLocaleString()}</span>
+                          {repo.language && <span>{repo.language}</span>}
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -213,8 +189,8 @@ function App() {
         </div>
       )}
 
-      {articles.map((article) => (
-        <WikiCard key={article.pageid} article={article} />
+      {repos.map((repo) => (
+        <GitHubCard key={repo.id} repo={repo} />
       ))}
       <div ref={observerTarget} className="h-10 -mt-1" />
       {loading && (

@@ -1,15 +1,24 @@
 {
-	"short_name": "WikiTok",
-	"name": "WikiTok",
-	"icons": [
-		{
-		"src": "wiki-logo.svg",
-		"sizes": "any",
-		"type": "image/svg+xml"
-		}
-	],
-	"start_url": ".",
-	"display": "standalone",
-	"theme_color": "#000000",
-	"background_color": "#ffffff"
+  "short_name": "GitTok",
+  "name": "GitTok - Explore GitHub Repos",
+  "description": "A TikTok-style interface for exploring random GitHub repositories",
+  "icons": [
+    {
+      "src": "github-mark.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "github-mark-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#000000",
+  "orientation": "portrait"
 }
