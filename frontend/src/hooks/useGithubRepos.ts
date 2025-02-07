@@ -32,17 +32,18 @@ const octokit = new Octokit({
 
 const MAX_PAGE = 20; // Increased page range due to higher rate limit
 
-const processRepoDescription = (description: string, repoUrl: string): string => {
-  if (!description) return description;
+const processReadmeHtml = (html: string, repoUrl: string): string => {
+  if (!html) return html;
   
   // Extract owner and repo name from the URL
   const [, owner, repoName] = repoUrl.match(/github\.com\/([^\/]+)\/([^\/]+)/) || [];
-  if (!owner || !repoName) return description;
+  if (!owner || !repoName) return html;
 
   // Replace relative image URLs with absolute URLs
-  return description.replace(
-    /!\[.*?\]\(((?!https?:\/\/)[^)]+)\)/g,
-    (match, relativeUrl) => match.replace(relativeUrl, `https://raw.githubusercontent.com/${owner}/${repoName}/main/${relativeUrl}`)
+  return html.replace(
+    /src="(?!https?:\/\/)([^"]+)"/g,
+    (match, relativeUrl) => 
+      match.replace(relativeUrl, `https://raw.githubusercontent.com/${owner}/${repoName}/main/${relativeUrl}`)
   );
 };
 
@@ -85,15 +86,15 @@ export function useGithubRepos() {
             return {
               ...repo,
               topics: topicsResponse.data.names,
-              description: processRepoDescription(repo.description, repo.html_url),
-              readme_html: readmeResponse.data.toString()
+              readme_html: processReadmeHtml(readmeResponse.data.toString()
+, repo.html_url)
             };
           } catch (error) {
             // If we can't get the readme or topics, return the repo without them
             console.error(`Error fetching details for ${repo.full_name}:`, error);
             return {
               ...repo,
-              description: processRepoDescription(repo.description, repo.html_url),
+              description: repo.description,
               topics: [],
               readme_html: undefined
             };
