@@ -11,7 +11,7 @@ function App() {
   const [showAbout, setShowAbout] = useState(false)
   const [showLikes, setShowLikes] = useState(false)
   const { repos, loading, fetchRepos } = useGithubRepos()
-  const { likedRepos, toggleLike } = useLikedRepos()
+  const { likedRepos } = useLikedRepos()
   const observerTarget = useRef(null)
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -86,7 +86,6 @@ function AppContent({
   setShowLikes,
   repos,
   loading,
-  handleObserver,
   observerTarget,
   searchQuery,
   setSearchQuery,
