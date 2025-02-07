@@ -1,5 +1,12 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Octokit } from 'octokit';
+
+// Get environment variable type definition
+declare global {
+  interface ImportMetaEnv {
+    readonly VITE_GITHUB_TOKEN: string;
+  }
+}
 
 export interface GithubRepo {
   id: number;
@@ -19,7 +26,11 @@ export interface GithubRepo {
   readme_html?: string;
 }
 
-const octokit = new Octokit();
+const octokit = new Octokit({
+  auth: import.meta.env.VITE_GITHUB_TOKEN
+});
+
+const MAX_PAGE = 20; // Increased page range due to higher rate limit
 
 export function useGithubRepos() {
   const [repos, setRepos] = useState<GithubRepo[]>([]);
@@ -31,10 +42,10 @@ export function useGithubRepos() {
       
       // Get repos with more than 1000 stars, sorted randomly
       const response = await octokit.rest.search.repos({
-        q: 'stars:>1000 language:en',
-        sort: 'stars',
+        q: 'stars:>1000',
+        sort: 'updated',
         per_page: 5,
-        page: Math.floor(Math.random() * 10) + 1
+        page: Math.floor(Math.random() * MAX_PAGE) + 1
       });
 
       const newRepos = response.data.items as GithubRepo[];
@@ -81,6 +92,10 @@ export function useGithubRepos() {
       setLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    fetchRepos();
+  }, [fetchRepos]);
 
   return { repos, loading, fetchRepos };
 }
