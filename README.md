@@ -1,14 +1,12 @@
-# WikiTok
+# GitTok
 
-A TikTok-style interface for exploring random Wikipedia articles in multiple languages.
+A fork of WikiTok to present a TikTok-style interface for exploring random GitHub repos.
 
 ## Features
 
-- Vertical scrolling feed of random Wikipedia articles
-- Support for 14 languages including English, Spanish, French, German, Chinese, Japanese and more
-- Article previews with images, titles and excerpts
-- Share articles directly or copy links
-- Language selector with country flags
+- Vertical scrolling feed of random GitHub repos
+- Repo previews with images, titles and excerpts
+- Share repos directly or copy links
 - Preloading of images and content for smooth scrolling
 - Responsive design that works on mobile and desktop
 - Progressive Web App (PWA) support for installing as a standalone app
@@ -40,7 +38,7 @@ No backend required!
 
 ## Demo
 
-Check it out here at [wikitok.vercel.app](https://wikitok.vercel.app)
+Check it out here at [gittok.vercel.app](https://gittok.vercel.app)
 
 ## Contributing
 
