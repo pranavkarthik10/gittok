@@ -1,9 +1,11 @@
 import { useEffect, useRef, useCallback, useState } from 'react'
 import { GitHubCard } from './components/GitHubCard'
-import { Loader2, Search, X, Download } from 'lucide-react'
+import { Loader2, Search, X, Download, Heart, Share2, ExternalLink } from 'lucide-react'
 import { Analytics } from "@vercel/analytics/react"
 import { useLikedRepos } from './contexts/LikedReposContext'
 import { useGithubRepos } from './hooks/useGithubRepos'
+import type { GithubRepo } from './hooks/useGithubRepos'
+import { VisibleRepoProvider, useVisibleRepo } from './contexts/VisibleRepoContext'
 
 function App() {
   const [showAbout, setShowAbout] = useState(false)
@@ -56,6 +58,77 @@ function App() {
     linkElement.click()
   }
 
+ 
+  return (
+    <VisibleRepoProvider>
+      <AppContent
+        showAbout={showAbout}
+        setShowAbout={setShowAbout}
+        showLikes={showLikes}
+        setShowLikes={setShowLikes}
+        repos={repos}
+        loading={loading}
+        handleObserver={handleObserver}
+        observerTarget={observerTarget}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        filteredLikedRepos={filteredLikedRepos}
+        handleExport={handleExport}
+      />
+    </VisibleRepoProvider>
+  )
+}
+
+function AppContent({
+  showAbout,
+  setShowAbout,
+  showLikes,
+  setShowLikes,
+  repos,
+  loading,
+  handleObserver,
+  observerTarget,
+  searchQuery,
+  setSearchQuery,
+  filteredLikedRepos,
+  handleExport
+}: {
+  showAbout: boolean
+  setShowAbout: (show: boolean) => void
+  showLikes: boolean
+  setShowLikes: (show: boolean) => void
+  repos: GithubRepo[]
+  loading: boolean
+  handleObserver: (entries: IntersectionObserverEntry[]) => void
+  observerTarget: React.RefObject<HTMLDivElement>
+  searchQuery: string
+  setSearchQuery: (query: string) => void
+  filteredLikedRepos: GithubRepo[]
+  handleExport: () => void
+}) {
+  const { visibleRepo } = useVisibleRepo();
+  const { likedRepos, toggleLike } = useLikedRepos();
+  const isLiked = visibleRepo ? likedRepos.some((r) => r.id === visibleRepo.id) : false;
+
+  const handleShare = async () => {
+    if (!visibleRepo) return;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: visibleRepo.name,
+          text: visibleRepo.description,
+          url: visibleRepo.html_url,
+        });
+      } catch (error) {
+        console.error('Error sharing:', error);
+      }
+    } else {
+      // Fallback to copying to clipboard
+      navigator.clipboard.writeText(visibleRepo.html_url);
+    }
+  };
+ 
   return (
     <div className="h-screen w-full bg-black text-white overflow-y-scroll snap-y snap-mandatory">
       <div className="fixed top-4 left-4 z-50">
@@ -66,7 +139,7 @@ function App() {
           GitTok
         </button>
       </div>
-
+ 
       <div className="fixed top-4 right-4 z-50 flex flex-col items-end gap-2">
         <button
           onClick={() => setShowAbout(!showAbout)}
@@ -80,6 +153,35 @@ function App() {
         >
           Likes
         </button>
+      </div>
+ 
+      <div className="fixed right-4 bottom-20 z-50 flex flex-col gap-4">
+        <button
+          onClick={() => visibleRepo && toggleLike(visibleRepo)}
+          className="p-3 bg-gray-800/80 rounded-full hover:bg-gray-700/80 transition-colors"
+        >
+          <Heart
+            className={`w-6 h-6 ${
+              isLiked ? 'fill-red-500 text-red-500' : 'text-white'
+            }`}
+          />
+        </button>
+        <button
+          onClick={handleShare}
+          className="p-3 bg-gray-800/80 rounded-full hover:bg-gray-700/80 transition-colors"
+        >
+          <Share2 className="w-6 h-6" />
+        </button>
+        {visibleRepo && (
+          <a
+            href={visibleRepo.html_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-3 bg-gray-800/80 rounded-full hover:bg-gray-700/80 transition-colors"
+          >
+            <ExternalLink className="w-6 h-6" />
+          </a>
+        )}
       </div>
 
       {showAbout && (
