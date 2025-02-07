@@ -98,7 +98,7 @@ function App() {
             <p className="text-white/70">
               Check out the code on{' '}
               <a
-                href="https://github.com/yourusername/gittok"
+                href="https://github.com/pranavkarthik10/gittok"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-white hover:underline"
