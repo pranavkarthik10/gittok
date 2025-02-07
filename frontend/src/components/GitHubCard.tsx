@@ -33,7 +33,7 @@ export function GitHubCard({ repo }: GitHubCardProps) {
 
   return (
     <div className="h-screen w-full snap-start relative bg-gray-900 flex items-center justify-center">
-      <div ref={cardRef} className="w-full max-w-2xl h-[80vh] bg-gray-800 rounded-lg p-6 overflow-y-auto relative">
+      <div ref={cardRef} className="w-full max-w-2xl h-[80vh] bg-gray-800 rounded-lg p-6 overflow-y-hidden overscroll-contain relative">
         <div className="flex items-center gap-4 mb-4">
           <img
             src={repo.owner.avatar_url}

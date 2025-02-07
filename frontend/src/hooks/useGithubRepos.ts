@@ -40,11 +40,17 @@ const processReadmeHtml = (html: string, repoUrl: string): string => {
   if (!owner || !repoName) return html;
 
   // Replace relative image URLs with absolute URLs
-  return html.replace(
-    /src="(?!https?:\/\/)([^"]+)"/g,
-    (match, relativeUrl) => 
-      match.replace(relativeUrl, `https://raw.githubusercontent.com/${owner}/${repoName}/main/${relativeUrl}`)
-  );
+  return html
+    .replace(
+      /src="(?!https?:\/\/)([^"]+)"/g,
+      (match, relativeUrl) => 
+        match.replace(relativeUrl, `https://raw.githubusercontent.com/${owner}/${repoName}/main/${relativeUrl}`)
+    )
+    .replace(
+      /srcset="(?!https?:\/\/)([^"]+)"/g,
+      (match, relativeUrl) => 
+        match.replace(relativeUrl, `https://raw.githubusercontent.com/${owner}/${repoName}/main/${relativeUrl}`)
+    );
 };
 
 export function useGithubRepos() {
