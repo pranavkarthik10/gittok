@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { GitHubCard } from './components/GitHubCard'
 import { Loader2, Search, X, Download, Heart, Share2, ExternalLink } from 'lucide-react'
 import { Analytics } from "@vercel/analytics/react"
@@ -10,7 +10,7 @@ import { VisibleRepoProvider, useVisibleRepo } from './contexts/VisibleRepoConte
 function App() {
   const [showAbout, setShowAbout] = useState(false)
   const [showLikes, setShowLikes] = useState(false)
-  const { repos, loading, hasMore } = useGithubRepos()
+  const { repos, loading } = useGithubRepos()
   const { likedRepos } = useLikedRepos()
   const [searchQuery, setSearchQuery] = useState('')
 
