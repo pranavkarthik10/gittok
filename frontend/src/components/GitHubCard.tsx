@@ -21,7 +21,7 @@ export function GitHubCard({ repo }: GitHubCardProps) {
           }
         });
       },
-      { threshold: 0.7 }
+      { threshold: 0.6 }
     );
 
     if (cardRef.current) {
@@ -32,8 +32,9 @@ export function GitHubCard({ repo }: GitHubCardProps) {
   }, [repo, setVisibleRepo]);
 
   return (
-    <div className="h-screen w-screen snap-start relative bg-gray-900 flex items-center justify-center">
-      <div ref={cardRef} className="w-screen max-w-2xl h-[80vh] bg-gray-800 rounded-lg p-6 overflow-y-hidden relative">
+    <div className="h-screen w-screen snap-start bg-gray-900 flex items-center justify-center">
+      <div ref={cardRef} className="w-screen max-w-2xl h-[80vh] bg-gray-800 rounded-lg p-6 relative">
+        <div className="h-full overflow-y-auto hide-scrollbar">
         <div className="flex items-center gap-4 mb-4">
           <img
             src={repo.owner.avatar_url}
@@ -80,12 +81,13 @@ export function GitHubCard({ repo }: GitHubCardProps) {
         </div>
 
         {repo.readme_html && (
-          <div className="prose prose-invert max-w-none mb-4">
+          <div className="prose prose-invert max-w-none mb-4 max-h-[50vh] overflow-y-auto hide-scrollbar relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-20 after:bg-gradient-to-t after:from-gray-800 after:to-transparent">
             <ReactMarkdown rehypePlugins={[rehypeRaw]}>
               {repo.readme_html}
             </ReactMarkdown>
           </div>
         )}
+        </div>
       </div>
     </div>
   );

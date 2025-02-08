@@ -3,8 +3,24 @@
 html, body {
   overscroll-behavior-y: contain;
   overflow: hidden;
+  scroll-behavior: smooth;
 }
 
 ::-webkit-scrollbar {
   display: none;
+}
+
+* {
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+@layer utilities {
+  .hide-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 }
