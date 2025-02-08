@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { GitHubCard } from './components/GitHubCard'
 import { Loader2, Search, X, Download, Heart, Share2, ExternalLink } from 'lucide-react'
 import { Analytics } from "@vercel/analytics/react"
@@ -10,37 +10,9 @@ import { VisibleRepoProvider, useVisibleRepo } from './contexts/VisibleRepoConte
 function App() {
   const [showAbout, setShowAbout] = useState(false)
   const [showLikes, setShowLikes] = useState(false)
-  const { repos, loading, fetchRepos } = useGithubRepos()
+  const { repos, loading, hasMore } = useGithubRepos()
   const { likedRepos } = useLikedRepos()
-  const observerTarget = useRef(null)
   const [searchQuery, setSearchQuery] = useState('')
-
-  const handleObserver = useCallback(
-    (entries: IntersectionObserverEntry[]) => {
-      const [target] = entries
-      if (target.isIntersecting && !loading) {
-        fetchRepos()
-      }
-    },
-    [loading, fetchRepos]
-  )
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(handleObserver, {
-      threshold: 0.5,
-      rootMargin: '1000px',
-    })
-
-    if (observerTarget.current) {
-      observer.observe(observerTarget.current)
-    }
-
-    return () => observer.disconnect()
-  }, [handleObserver])
-
-  useEffect(() => {
-    fetchRepos()
-  }, [])
 
   const filteredLikedRepos = likedRepos.filter(repo =>
     repo.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -58,7 +30,6 @@ function App() {
     linkElement.click()
   }
 
- 
   return (
     <VisibleRepoProvider>
       <AppContent
@@ -68,8 +39,6 @@ function App() {
         setShowLikes={setShowLikes}
         repos={repos}
         loading={loading}
-        handleObserver={handleObserver}
-        observerTarget={observerTarget}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         filteredLikedRepos={filteredLikedRepos}
@@ -86,7 +55,6 @@ function AppContent({
   setShowLikes,
   repos,
   loading,
-  observerTarget,
   searchQuery,
   setSearchQuery,
   filteredLikedRepos,
@@ -98,8 +66,6 @@ function AppContent({
   setShowLikes: (show: boolean) => void
   repos: GithubRepo[]
   loading: boolean
-  handleObserver: (entries: IntersectionObserverEntry[]) => void
-  observerTarget: React.RefObject<HTMLDivElement>
   searchQuery: string
   setSearchQuery: (query: string) => void
   filteredLikedRepos: GithubRepo[]
@@ -293,7 +259,6 @@ function AppContent({
       {repos.map((repo) => (
         <GitHubCard key={repo.id} repo={repo} />
       ))}
-      <div ref={observerTarget} className="h-10 -mt-1" />
       {loading && (
         <div className="h-screen w-full flex items-center justify-center gap-2">
           <Loader2 className="h-6 w-6 animate-spin" />
